@@ -3,6 +3,7 @@ uvicorn
 python-multipart
 pydantic
 psycopg2-binary
+python-dotenv
 pandas
 catboost
 scikit-learn
