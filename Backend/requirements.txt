@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-multipart
+pydantic
+psycopg2-binary
+pandas
+catboost
+scikit-learn
+Pillow
+numpy
+PyMuPDF
+paddleocr
+pdf2image
