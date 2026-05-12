@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import './App.css'
 
-const API_BASE = '/api'
+const API_BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/$/, '')
 
 const selectOptions = {
   Service_Fluid: ['Oxygen', 'Steam', 'Water', 'Oil', 'Gas'],
@@ -308,7 +308,7 @@ function CreateValve() {
               accept="application/pdf"
               onChange={(event) => handlePdfUpload(event.target.files?.[0])}
             />
-            {pdfUploading ? 'Uploading…' : 'Choose PDF'}
+            {pdfUploading ? 'Uploading...' : 'Choose PDF'}
           </label>
         </div>
 
@@ -362,7 +362,7 @@ function CreateValve() {
           <div className="result">
             <div>
               <p className="label">Predicted Price</p>
-              <p className="price">{result.price ? formatPrice(result.price) : '—'}</p>
+              <p className="price">{result.price ? formatPrice(result.price) : '-'}</p>
             </div>
             <div>
               <p className="label">Valve ID</p>
@@ -390,7 +390,7 @@ function Modal({ children, onClose }) {
 }
 
 function formatPrice(value) {
-  if (value === undefined || value === null || Number.isNaN(Number(value))) return '—'
+  if (value === undefined || value === null || Number.isNaN(Number(value))) return '-'
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
@@ -405,4 +405,6 @@ function toLabel(key) {
 }
 
 export default App
+
+
 

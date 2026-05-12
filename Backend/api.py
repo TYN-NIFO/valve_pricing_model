@@ -1,4 +1,6 @@
+import os
 from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from uuid import UUID
 import uuid
@@ -9,6 +11,20 @@ from predict import predict_price
 from db import get_connection
 
 app = FastAPI()
+
+cors_origins = [
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", "*").split(",")
+    if origin.strip()
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class ValveInput(BaseModel):
@@ -42,14 +58,16 @@ def get_ocr():
     global OCR_INSTANCE
     if OCR_INSTANCE is None:
         if not OCR_AVAILABLE:
-            raise RuntimeError(OCR_IMPORT_ERROR or "PaddleOCR is not installed")
+            raise RuntimeError(
+                OCR_IMPORT_ERROR or "PaddleOCR is not installed")
         OCR_INSTANCE = PaddleOCR(use_angle_cls=True, lang="en")
     return OCR_INSTANCE
 
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
     if not OCR_AVAILABLE:
-        raise HTTPException(status_code=500, detail="PaddleOCR is not installed on the server")
+        raise HTTPException(
+            status_code=500, detail="PaddleOCR is not installed on the server")
 
     try:
         import fitz  # PyMuPDF
@@ -242,7 +260,8 @@ def predict(valve: ValveInput):
 @app.post("/predict-from-pdf")
 async def predict_from_pdf(file: UploadFile = File(...)):
     if file.content_type not in {"application/pdf", "application/octet-stream"}:
-        raise HTTPException(status_code=415, detail="Only PDF files are supported")
+        raise HTTPException(
+            status_code=415, detail="Only PDF files are supported")
 
     file_bytes = await file.read()
     text = extract_text_from_pdf(file_bytes)
@@ -323,4 +342,3 @@ def get_valve_details_by_id(valve_id: UUID):
         raise HTTPException(status_code=404, detail="Valve ID not found")
 
     return row
-
